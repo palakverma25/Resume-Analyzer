@@ -1,63 +1,64 @@
 from collections import Counter
+import math
 import re
-
-import spacy
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
 
 from backend.core.config import settings
 
 
 class NLPService:
-    def __init__(self) -> None:
-        self.nlp = self._load_spacy_model()
-
-    @staticmethod
-    def _load_spacy_model():
-        try:
-            return spacy.load("en_core_web_sm")
-        except OSError:
-            # Fallback keeps the app runnable even when model download is skipped.
-            return spacy.blank("en")
+    STOPWORDS = {
+        "a", "an", "and", "are", "as", "at", "be", "by", "for", "from", "has", "he",
+        "in", "is", "it", "its", "of", "on", "that", "the", "to", "was", "were",
+        "will", "with", "or", "this", "these", "those", "you", "your", "we", "our",
+        "us", "i", "me", "my", "they", "them", "their", "if", "but", "not", "can",
+    }
 
     def normalize_text(self, text: str) -> str:
-        cleaned = re.sub(r"\s+", " ", text).strip().lower()
-        doc = self.nlp(cleaned)
-        tokens: list[str] = []
-        for token in doc:
-            if token.is_stop or token.is_punct or token.is_space:
-                continue
-            lemma = token.lemma_.strip() if token.lemma_ else token.text.strip()
-            if lemma:
-                tokens.append(lemma.lower())
-        return " ".join(tokens)
+        tokens = self._tokenize(text)
+        normalized_tokens = [token for token in tokens if token not in self.STOPWORDS]
+        return " ".join(normalized_tokens)
+
+    @staticmethod
+    def _tokenize(text: str) -> list[str]:
+        cleaned = re.sub(r"[^a-zA-Z0-9\s]", " ", text.lower())
+        cleaned = re.sub(r"\s+", " ", cleaned).strip()
+        tokens = cleaned.split(" ") if cleaned else []
+        return [token for token in tokens if len(token) > 2]
+
+    @staticmethod
+    def _vectorize(text: str) -> Counter:
+        return Counter(text.split())
+
+    @staticmethod
+    def _cosine_from_counters(counter_a: Counter, counter_b: Counter) -> float:
+        if not counter_a or not counter_b:
+            return 0.0
+
+        common = set(counter_a.keys()).intersection(counter_b.keys())
+        numerator = sum(counter_a[token] * counter_b[token] for token in common)
+
+        norm_a = math.sqrt(sum(value * value for value in counter_a.values()))
+        norm_b = math.sqrt(sum(value * value for value in counter_b.values()))
+        if norm_a == 0 or norm_b == 0:
+            return 0.0
+
+        return numerator / (norm_a * norm_b)
 
     def extract_keywords(self, text: str, top_k: int | None = None) -> list[str]:
         k = top_k or settings.TOP_K_KEYWORDS
-        normalized = self.normalize_text(text)
-        doc = self.nlp(normalized)
-
-        candidates: list[str] = []
-        if doc.has_annotation("DEP"):
-            candidates.extend(chunk.text.lower().strip() for chunk in doc.noun_chunks)
-
-        candidates.extend(
-            token.text.lower().strip()
-            for token in doc
-            if token.is_alpha and len(token.text) > 2 and not token.is_stop
-        )
-
-        counts = Counter(term for term in candidates if term)
+        tokens = self.normalize_text(text).split()
+        counts = Counter(tokens)
         return [word for word, _ in counts.most_common(k)]
 
-    @staticmethod
-    def calculate_similarity(resume_text: str, job_text: str) -> float:
+    def calculate_similarity(self, resume_text: str, job_text: str) -> float:
         if not resume_text.strip() or not job_text.strip():
             return 0.0
-        vectorizer = TfidfVectorizer()
-        matrix = vectorizer.fit_transform([resume_text, job_text])
-        score = cosine_similarity(matrix[0:1], matrix[1:2])[0][0]
-        return float(score)
+        normalized_resume = self.normalize_text(resume_text)
+        normalized_job = self.normalize_text(job_text)
+        resume_vector = self._vectorize(normalized_resume)
+        job_vector = self._vectorize(normalized_job)
+        score = self._cosine_from_counters(resume_vector, job_vector)
+        return float(max(0.0, min(1.0, score)))
 
 
 nlp_service = NLPService()

@@ -11,3 +11,4 @@ __pycache__/
 # IDE/system
 .DS_Store
 Thumbs.db
+.vercel

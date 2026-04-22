@@ -6,8 +6,8 @@ AI Resume Analyzer is a FastAPI-based backend with a minimal frontend dashboard 
 
 - FastAPI REST APIs for health, resume parsing, keyword extraction, and resume scoring
 - File parsing support for PDF, DOCX, and TXT resumes
-- NLP pipeline using spaCy for normalization and keyword extraction
-- TF-IDF + cosine similarity scoring with keyword overlap weighting
+- Lightweight NLP pipeline for normalization and keyword extraction
+- Cosine similarity scoring with keyword overlap weighting
 - Minimal frontend dashboard to upload resumes and visualize score breakdown
 
 ## Project Structure
@@ -35,12 +35,6 @@ requirements.txt
 
 ```bash
 pip install -r requirements.txt
-```
-
-3. Download spaCy English model:
-
-```bash
-python -m spacy download en_core_web_sm
 ```
 
 ## Run Backend
@@ -78,7 +72,7 @@ pytest
 
 ## Scoring Logic
 
-- Similarity score from TF-IDF cosine similarity of normalized resume and job description text
+- Similarity score from cosine similarity of normalized resume and job description text
 - Keyword overlap score from matched resume/job keywords
 - Final score:
   - `final = (0.7 * similarity + 0.3 * keyword_overlap) * 100`
