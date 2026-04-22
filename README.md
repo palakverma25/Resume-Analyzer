@@ -82,3 +82,40 @@ pytest
 - Keyword overlap score from matched resume/job keywords
 - Final score:
   - `final = (0.7 * similarity + 0.3 * keyword_overlap) * 100`
+
+## Deploy on Vercel (Frontend + Backend)
+
+This project is set up to run as a single Vercel deployment:
+- Frontend is served from `frontend/`
+- FastAPI runs as a Python serverless function from `api/index.py`
+- Frontend calls `/api/v1` automatically in production
+
+### One-time setup
+
+1. Install the Vercel CLI:
+```bash
+npm i -g vercel
+```
+2. Log in:
+```bash
+vercel login
+```
+
+### Deploy
+
+From the project root:
+```bash
+vercel
+```
+
+For a production deployment:
+```bash
+vercel --prod
+```
+
+### Post-deploy check
+
+- Open your app URL (for example: `https://your-app.vercel.app`)
+- Check backend health at: `https://your-app.vercel.app/api/v1/health`
+
+If Vercel build/runtime limits become an issue (which can happen with heavier NLP stacks), keep frontend on Vercel and move backend to Render or Railway.

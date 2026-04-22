@@ -1,4 +1,6 @@
-const API_BASE_URL = window.RESUME_ANALYZER_API_BASE_URL || "http://127.0.0.1:8000/api/v1";
+const IS_LOCALHOST = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+const API_BASE_URL =
+  window.RESUME_ANALYZER_API_BASE_URL || (IS_LOCALHOST ? "http://127.0.0.1:8000/api/v1" : "/api/v1");
 const DEFAULT_ERROR_MESSAGE = "Unexpected error occurred.";
 
 const resumeFileInput = document.getElementById("resumeFile");
