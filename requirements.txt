@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+python-multipart
+spacy
+scikit-learn
+pydantic-settings
+pypdf
+python-docx
+pytest

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Resume Analyzer</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <header class="hero">
+        <h1>AI Resume Analyzer</h1>
+        <p class="subtitle">Upload a resume and compare it against a job description.</p>
+      </header>
+
+      <section class="card">
+        <label for="resumeFile">Resume (PDF, DOCX, TXT)</label>
+        <input id="resumeFile" type="file" accept=".pdf,.docx,.txt" />
+
+        <label for="jobDescription">Job Description</label>
+        <textarea
+          id="jobDescription"
+          rows="8"
+          placeholder="Paste job description here..."
+        ></textarea>
+
+        <button id="analyzeBtn">Analyze Resume</button>
+        <p id="statusMessage" class="status"></p>
+      </section>
+
+      <section id="results" class="card hidden">
+        <h2>Analysis Results</h2>
+        <div class="score-grid">
+          <div class="score-card">
+            <span class="label">Final Score</span>
+            <strong id="finalScore">-</strong>
+            <div class="progress"><div id="finalBar" class="bar"></div></div>
+          </div>
+          <div class="score-card">
+            <span class="label">Similarity</span>
+            <strong id="similarityScore">-</strong>
+            <div class="progress"><div id="similarityBar" class="bar"></div></div>
+          </div>
+          <div class="score-card">
+            <span class="label">Keyword Overlap</span>
+            <strong id="keywordScore">-</strong>
+            <div class="progress"><div id="keywordBar" class="bar"></div></div>
+          </div>
+        </div>
+
+        <div class="result-section">
+          <h3>Matched Keywords</h3>
+          <div id="matchedKeywords" class="chip-list"></div>
+        </div>
+
+        <div class="result-section">
+          <h3>Missing Keywords</h3>
+          <div id="missingKeywords" class="chip-list"></div>
+        </div>
+
+        <div class="result-section">
+          <h3>Suggestions to Improve Match</h3>
+          <ul id="suggestionsList" class="suggestions"></ul>
+        </div>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
